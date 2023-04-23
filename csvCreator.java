@@ -25,7 +25,7 @@ public class CsvCreator {
         writeCsvFile("salt.csv", xValues, saltedYValues);
         
         // smooth the data
-        double[] smoothedYValues = smoothData(yValues);
+        double[] smoothedYValues = smoothData(saltedYValues);
         writeCsvFile("smooth.csv", xValues, smoothedYValues);
     }
     
@@ -69,15 +69,17 @@ public class CsvCreator {
     // function to smooth the data
     private static double[] smoothData(double[] yValues) {
         double[] smoothedYValues = new double[yValues.length];
-    
-        // Compute the moving average for the middle values
+        
+        // copy the first and last values to the new array
+        smoothedYValues[0] = yValues[0];
+        smoothedYValues[yValues.length - 1] = yValues[yValues.length - 1];
+        
+        // smooth the middle values
         for (int i = 1; i < yValues.length - 1; i++) {
-            double sum = yValues[i - 2] + yValues[i - 1] + yValues[i] + yValues[i + 1] + yValues[i + 2];
-            smoothedYValues[i] = sum / 5.0;
+            smoothedYValues[i] = (yValues[i - 1] + yValues[i] + yValues[i + 1]) / 3.0;
         }
-    
+        
         return smoothedYValues;
     }
-
 
 }
