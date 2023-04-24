@@ -26,6 +26,9 @@ public class CsvCreator {
         
         // smooth the data
         double[] smoothedYValues = smoothData(saltedYValues);
+        for (int i = 0; i < 2; i++) {
+            smoothedYValues = smoothData(smoothedYValues);
+        }
         writeCsvFile("smooth.csv", xValues, smoothedYValues);
     }
     
