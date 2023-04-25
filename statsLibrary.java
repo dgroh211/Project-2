@@ -166,7 +166,7 @@ public class StatsLibrary
         return probability * 100;
     }
     
-    public static double hypergeometricDistribution(BigInteger n, BigInteger N, BigInteger K, BigInteger k) {
+    public static double findHypergeometricDistribution(BigInteger n, BigInteger N, BigInteger K, BigInteger k) {
         
         // calculate numerator and denominator of the hypergeometric distribution formula
         BigInteger numerator = findCombinations(K, k).multiply(findCombinations(N.subtract(K), n.subtract(k)));
@@ -178,7 +178,7 @@ public class StatsLibrary
     }
     
     //https://vitalflux.com/chebyshevs-theorem-concepts-formula-examples/#:~:text=The%20Chebyshev%20theorem%20states%20that,mean%20(%CE%BC%20%C2%B1%202%CF%83).
-     public double chebyshevsTheorem(ArrayList<Integer> inputNumbers, int k) {
+     public double findChebyshevsTheorem(ArrayList<Integer> inputNumbers, int k) {
         double mean = findMean(inputNumbers);
         double sd = findStandardDeviation(inputNumbers);
         
@@ -190,7 +190,7 @@ public class StatsLibrary
         return percentage;
     }
     
-    public static double poissonDistribution(double lambda, BigInteger k) {
+    public static double findPoissonDistribution(double lambda, BigInteger k) {
         double numerator = Math.pow(lambda, k.doubleValue()) * Math.exp(-lambda);
         double denominator = findFactorial(k).doubleValue();
         
