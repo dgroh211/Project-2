@@ -14,7 +14,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class apacheJFree {
+public class ApacheJFree {
 
     public static void main(String[] args) {
         XYSeries dataset = createDataset();
