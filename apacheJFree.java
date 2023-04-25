@@ -1,81 +1,111 @@
 // https://www.tutorialspoint.com/jfreechart/jfreechart_line_chart.htm
 // https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/index.html
 
-import java.io.File;
-import java.io.IOException;
+import java.awt.Color;
+import java.util.Random;
+import javax.swing.JFrame;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.function.Function2D;
-import org.jfree.data.function.FunctionDataset;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class RollingAverageExample {
+public class apacheJFree {
 
-    public static void main(String[] args) throws IOException {
-        
-        // Define the function as a Function2D object
-        Function2D function = new Function2D() {
-            @Override
-            public double getValue(double x) {
-                return 1.5*x + 1;
-            }
-        };
-        
-        // Define the domain of the function
-        double minX = -10.0;
-        double maxX = 10.0;
-        
-        // Define the rolling window size (number of points to include in the average)
-        int windowSize = 5;
-        
-        // Create an array to hold the function points and rolling averages
-        double[] functionPoints = new double[101];
-        double[] rollingAverages = new double[101];
-        
-        // Calculate the function points and rolling averages
-        Mean mean = new Mean();
-        for (int i = 0; i <= 100; i++) {
-            double x = minX + (maxX - minX) * i / 100.0;
-            double y = function.getValue(x);
-            functionPoints[i] = y;
-            if (i >= windowSize-1) {
-                double[] subset = new double[windowSize];
-                for (int j = 0; j < windowSize; j++) {
-                    subset[j] = functionPoints[i-j];
-                }
-                rollingAverages[i] = mean.evaluate(subset);
-            }
-        }
-        
-        // Create a dataset for the function points and rolling averages
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        XYSeries functionSeries = new XYSeries("Function");
-        XYSeries rollingAvgSeries = new XYSeries("Rolling Average");
-        for (int i = 0; i <= 100; i++) {
-            double x = minX + (maxX - minX) * i / 100.0;
-            if (i < windowSize-1) {
-                functionSeries.add(x, functionPoints[i]);
-            } else {
-                functionSeries.add(x, functionPoints[i]);
-                rollingAvgSeries.add(x, rollingAverages[i]);
-            }
-        }
-        dataset.addSeries(functionSeries);
-        dataset.addSeries(rollingAvgSeries);
-        
-        // Create a chart and display it using JFreeChart
-        ChartFrame frame = new ChartFrame("Rolling Average Example", 
-                ChartFactory.createXYLineChart("Function and Rolling Average", "X", "Y", 
-                        dataset, PlotOrientation.VERTICAL, true, true, false));
+    public static void main(String[] args) {
+        XYSeries dataset = createDataset();
+        XYSeries saltedDataset = saltDataset(dataset);
+        XYSeries smoothedDataset1 = smoothDataset(saltedDataset);
+        XYSeries smoothedDataset2 = smoothDataset(smoothedDataset1);
+        XYSeriesCollection datasetCollection = new XYSeriesCollection(dataset);
+        XYSeriesCollection saltedDatasetCollection = new XYSeriesCollection(saltedDataset);
+        XYSeriesCollection smoothedDatasetCollection = new XYSeriesCollection(smoothedDataset2);
+        JFreeChart chart = ChartFactory.createXYLineChart("y=(3/2)x + 1", "X", "Y", datasetCollection, PlotOrientation.VERTICAL, true, true, false);
+        XYPlot plot = chart.getXYPlot();
+        plot.setDataset(1, saltedDatasetCollection);
+        plot.setDataset(2, smoothedDatasetCollection);
+
+        XYLineAndShapeRenderer renderer1 = new XYLineAndShapeRenderer();
+        renderer1.setSeriesPaint(0, Color.BLUE);
+        plot.setRenderer(0, renderer1);
+
+        XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer();
+        renderer2.setSeriesPaint(0, Color.RED);
+        plot.setRenderer(1, renderer2);
+
+        XYLineAndShapeRenderer renderer3 = new XYLineAndShapeRenderer();
+        renderer3.setSeriesPaint(0, Color.GREEN);
+        plot.setRenderer(2, renderer3);
+
+        ChartPanel panel = new ChartPanel(chart);
+        panel.setPreferredSize(new java.awt.Dimension(800, 600));
+        JFrame frame = new JFrame("Function Plot");
+        frame.setContentPane(panel);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private static XYSeries createDataset() {
+        XYSeries dataset = new XYSeries("Normal Function");
+        for (int x = -10; x <= 10; x++) {
+            double y = 3.0/2 * x + 1;
+            dataset.add(x, y);
+        }
+        return dataset;
+    }
+
+    private static XYSeries saltDataset(XYSeries dataset) {
+        XYSeries saltedDataset = new XYSeries("Salted Function");
+        Random rand = new Random();
+        for (int i = 0; i < dataset.getItemCount(); i++) {
+            double x = dataset.getX(i).doubleValue();
+            double y = dataset.getY(i).doubleValue();
+            double salt = rand.nextDouble() * 4 - 2; // generate random salt
+            saltedDataset.add(x, y + salt);
+        }
+        return saltedDataset;
+    }
+
+    private static XYSeries smoothDataset(XYSeries dataset) {
+        int windowSize = 3;
+        XYSeries smoothedDataset1 = new XYSeries("Smoothed Function");
+        for (int i = 0; i < dataset.getItemCount(); i++) {
+            double x = dataset.getX(i).doubleValue();
+            double[] values = new double[windowSize];
+            for (int j = 0; j < windowSize; j++) {
+                int index = i - windowSize/2 + j;
+                if (index >= 0 && index < dataset.getItemCount()) {
+                    values[j] = dataset.getY(index).doubleValue();
+                }
+            }
+            double smoothedValue = new Mean().evaluate(values);
+            smoothedDataset1.add(x, smoothedValue);
+        }
+
+        // Make sure that the first and last points of the smoothed dataset are the same as those in the original dataset
+        smoothedDataset1.update(0, dataset.getY(0));
+        smoothedDataset1.update(smoothedDataset1.getItemCount()-1, dataset.getY(dataset.getItemCount()-1));
+
+        XYSeries smoothedDataset2 = new XYSeries("Smoothed Function");
+        for (int i = 0; i < smoothedDataset1.getItemCount(); i++) {
+            double x = smoothedDataset1.getX(i).doubleValue();
+            double[] values = new double[windowSize];
+            for (int j = 0; j < windowSize; j++) {
+                int index = i - windowSize/2 + j;
+                if (index >= 0 && index < smoothedDataset1.getItemCount()) {
+                    values[j] = smoothedDataset1.getY(index).doubleValue();
+                }
+            }
+            double smoothedValue = new Mean().evaluate(values);
+            smoothedDataset2.add(x, smoothedValue);
+        }
         
-        // Save the chart as a JPEG image
-        File file = new File("rolling_average_example.jpg");
-        ChartUtilities.saveChartAsJPEG(file, frame.getChart(), 800, 600);
+        smoothedDataset2.update(0, dataset.getY(0));
+        smoothedDataset2.update(smoothedDataset2.getItemCount()-1, dataset.getY(dataset.getItemCount()-1));
+        return smoothedDataset2;
     }
 }
