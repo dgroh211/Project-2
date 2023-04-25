@@ -168,32 +168,34 @@ public class StatsLibrary
     
     public static double findHypergeometricDistribution(BigInteger n, BigInteger N, BigInteger K, BigInteger k) {
         
-        // calculate numerator and denominator of the hypergeometric distribution formula
+        //Initializes the numerator and denominator
         BigInteger numerator = findCombinations(K, k).multiply(findCombinations(N.subtract(K), n.subtract(k)));
         BigInteger denominator = findCombinations(N, n);
         
-        // convert to double and return result
+        //Converts to double and returns the result
         double result = numerator.doubleValue() / denominator.doubleValue();
-        return result;
+        return result * 100;
     }
     
     //https://vitalflux.com/chebyshevs-theorem-concepts-formula-examples/#:~:text=The%20Chebyshev%20theorem%20states%20that,mean%20(%CE%BC%20%C2%B1%202%CF%83).
-     public double findChebyshevsTheorem(ArrayList<Integer> inputNumbers, int k) {
-        double mean = findMean(inputNumbers);
-        double sd = findStandardDeviation(inputNumbers);
-        
-        double rangeMin = mean - k * sd;
-        double rangeMax = mean + k * sd;
-        
-        double percentage = 1 - 1.0 / (k * k);
-        
-        return percentage;
+     public double findChebyshevsTheorem(int min, int max, int mean, int sd) {
+        //Initializes the bounds for chebyshev's theorem by suubtracting it from the mean
+        int bounds = max - mean;
+        //Initializes k by dividing the bounds by the standard deviation
+        int k = bounds / sd;
+
+        //Initializes the formula for percentage and returns the percentage
+        double percentage = 1 - (1.0 / Math.pow(k,2));
+        return percentage * 100;
     }
     
     public static double findPoissonDistribution(double lambda, BigInteger k) {
+        //Initializes the numerator and denominator for the Poisson problem
         double numerator = Math.pow(lambda, k.doubleValue()) * Math.exp(-lambda);
         double denominator = findFactorial(k).doubleValue();
         
-        return numerator / denominator;
+        //Returns the result
+        double result = numerator / denominator;
+        return result * 100
     }
 }

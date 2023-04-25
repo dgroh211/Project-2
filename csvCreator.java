@@ -5,26 +5,26 @@ import java.util.Random;
 public class CsvCreator {
 
     public static void main(String[] args) {
-        // create the x values
+        //Creates the x values of the function
         double[] xValues = new double[21];
         for (int i = 0; i < 21; i++) {
             xValues[i] = i - 10;
         }
         
-        // create the y values
+        //Creates the y values of the function
         double[] yValues = new double[21];
         for (int i = 0; i < 21; i++) {
             yValues[i] = 1.5 * xValues[i] + 1;
         }
         
-        // write the normal data to a CSV file
+        //Writes the normal data into a csv file
         writeCsvFile("normal.csv", xValues, yValues);
         
-        // salt the data
+        //Writes the salted data into a csv file
         double[] saltedYValues = saltData(yValues);
         writeCsvFile("salt.csv", xValues, saltedYValues);
         
-        // smooth the data
+        //Smooths over the salted data twice, then prints the smoothed data into a csv file
         double[] smoothedYValues = smoothData(saltedYValues);
         for (int i = 0; i < 2; i++) {
             smoothedYValues = smoothData(smoothedYValues);
@@ -32,7 +32,7 @@ public class CsvCreator {
         writeCsvFile("smooth.csv", xValues, smoothedYValues);
     }
     
-    // function to write the x and y values to a CSV file
+    //Method that creates the csvFile
     private static void writeCsvFile(String filename, double[] xValues, double[] yValues) {
         try {
             FileWriter writer = new FileWriter(filename);
@@ -51,37 +51,39 @@ public class CsvCreator {
         }
     }
     
-    // function to salt the data
+    //Function to salt through the data
     private static double[] saltData(double[] yValues) {
         double[] saltedYValues = new double[yValues.length];
         
-        // keep the first and last values unchanged
+        //This keeps the first and last values unchanged
         saltedYValues[0] = yValues[0];
         saltedYValues[yValues.length - 1] = yValues[yValues.length - 1];
     
-        // add or subtract a random value from [-2, 2] to the middle values
+        //Chooses a random number on the range [-2,2] to add to the function
         Random rand = new Random();
         for (int i = 1; i < yValues.length - 1; i++) {
             double randomValue = rand.nextDouble() * 4 - 2; // generate random number in [-2, 2]
             saltedYValues[i] = yValues[i] + randomValue;
         }
     
+        //Returns only the y values for the salted function
         return saltedYValues;
     }
     
-    // function to smooth the data
+    //Function to smooth through the data
     private static double[] smoothData(double[] yValues) {
         double[] smoothedYValues = new double[yValues.length];
         
-        // copy the first and last values to the new array
+        //This keeps the first and last values unchanged
         smoothedYValues[0] = yValues[0];
         smoothedYValues[yValues.length - 1] = yValues[yValues.length - 1];
         
-        // smooth the middle values
+        //This finds the average of a specific window size, I chose to make the window size 3
         for (int i = 1; i < yValues.length - 1; i++) {
             smoothedYValues[i] = (yValues[i - 1] + yValues[i] + yValues[i + 1]) / 3.0;
         }
         
+        //Returns only the y values for the smooth function
         return smoothedYValues;
     }
 
